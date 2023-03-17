@@ -1,5 +1,6 @@
 package main.java.org.wuxian.machines;
 
+import main.java.org.wuxian.database.Portal;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -23,6 +24,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Recognize extends JFrame {
@@ -45,7 +47,7 @@ public class Recognize extends JFrame {
     JPanel result_panel;
     Container result_data;
     JLabel result_full_name, result_matric_number, result_department, result_student_id, result_student_phone, image_label, lecture, message;
-    JButton model;
+    JButton model, validate;
     Thread t;
     JComboBox classes;
     String [] dep = {"Csc 402", "Csc 404", " Csc 406","Csc 408","Csc 410","Csc 466"};
@@ -64,40 +66,6 @@ public class Recognize extends JFrame {
         JScrollPane jp = new JScrollPane(console_pane);
         jp.getVerticalScrollBar().addAdjustmentListener(e -> e.getAdjustable().setValue(e.getAdjustable().getMaximum()));
        // result_pane.add(jp);
-
-
-        result_pane = new JPanel(new FlowLayout(FlowLayout.LEFT, 50, 5));
-        result_pane.setPreferredSize(new Dimension(600,400));
-        result_student_id = new JLabel();
-        result_student_id.setFont(new Font("Lucida", Font.PLAIN, 20));
-        result_student_id.setPreferredSize(new Dimension(600,20));
-        result_pane.add(result_student_id);
-
-       result_full_name = new JLabel();
-       result_full_name.setFont(new Font("Lucida", Font.PLAIN, 20));
-       result_full_name.setPreferredSize(new Dimension(600,20));
-       result_pane.add(result_full_name);
-
-       result_matric_number = new JLabel();
-       result_matric_number.setFont(new Font("Lucida", Font.PLAIN, 20));
-       result_matric_number.setPreferredSize(new Dimension(600,20));
-       result_pane.add(result_matric_number);
-
-        result_student_phone = new JLabel();
-        result_student_phone.setFont(new Font("Lucida", Font.PLAIN, 20));
-        result_student_phone.setPreferredSize(new Dimension(600,20));
-        result_pane.add(result_student_phone);
-
-        result_department = new JLabel();
-        result_department.setFont(new Font("Lucida", Font.PLAIN, 20));
-        result_department.setPreferredSize(new Dimension(600,20));
-        result_pane.add(result_department);
-
-
-        image_label = new JLabel();
-        result_pane.add(image_label);
-
-
 
 
 
@@ -187,13 +155,8 @@ public class Recognize extends JFrame {
             console_pane.append("Department : " + result.get(2) + "\n");
             console_pane.append("Student Phone : " + result.get(3) + "\n");
             console_pane.append("Student Image : " + result.get(4) + "\n");
-            result_student_id.setText("Student Matric-No : " + result.get(0));
-            result_full_name.setText("Student Name : " + result.get(1));
-            result_department.setText("Department : " + result.get(2));
-            result_student_phone.setText("Student Phone: " + result.get(3));
-            imageIcon = new ImageIcon(result.get(4).toString());
-            image_label.setIcon(imageIcon);
-            JOptionPane.showConfirmDialog(null,result_pane,"Information",JOptionPane.YES_NO_OPTION);
+            resultContainer(result.get(0).toString(),result.get(1).toString(),result.get(2).toString(), result.get(3).toString(),result.get(4).toString(),result.get(5).toString());
+         //   JOptionPane.showConfirmDialog(null,result_pane,"Information",JOptionPane.YES_NO_OPTION);
 
 
         } else {
@@ -298,13 +261,74 @@ public class Recognize extends JFrame {
     }
 
 
-    public void resultContainer(){
+    public void resultContainer(String o, String o1, String o2, String o3, String s, String o4){
         JFrame res_frame = new JFrame("Results");
         Container container = new Container();
 
+        result_student_id = new JLabel();
+        result_student_id.setFont(new Font("Lucida", Font.PLAIN, 14));
+        result_student_id.setBounds(20,20,400,22);
+        container.add(result_student_id);
+
+        result_full_name = new JLabel();
+        result_full_name.setFont(new Font("Lucida", Font.PLAIN, 14));
+        result_full_name.setBounds(20,44,400,22);
+        container.add(result_full_name);
+
+        result_matric_number = new JLabel();
+        result_matric_number.setFont(new Font("Lucida", Font.PLAIN, 14));
+        result_matric_number.setBounds(20,68,400,22);
+        container.add(result_matric_number);
+
+        result_student_phone = new JLabel();
+        result_student_phone.setFont(new Font("Lucida", Font.PLAIN, 14));
+        result_student_phone.setBounds(20,92,400,22);
+        container.add(result_student_phone);
+
+        result_department = new JLabel();
+        result_department.setFont(new Font("Lucida", Font.PLAIN, 14));
+        result_department.setBounds(20,116,400,22);
+        container.add(result_department);
+
+
+        image_label = new JLabel();
+        image_label.setBounds(20,140,150,150);
+        container.add(image_label);
+
+        lecture = new JLabel("Select The Attendance Course");
+        lecture.setBounds(20,300,300,22);
+        container.add(lecture);
+
+        classes = new JComboBox(dep);
+        classes.setBounds(20,325,200,22);
+        container.add(classes);
+
+
+        result_student_id.setText("Student Matric-No : " + o);
+        result_full_name.setText("Student Name : " + o1);
+        result_department.setText("Department : " + o2);
+        result_student_phone.setText("Student Phone: " + o3);
+        imageIcon = new ImageIcon(s);
+        image_label.setIcon(imageIcon);
+
+        validate = new JButton("Validate Attendance");
+        validate.setBounds(20,360,200,40);
+        validate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    new Portal().insertAttendance(o4,o,o1,o2,classes.getSelectedItem().toString(),o3,s);
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        container.add(validate);
+
 
         res_frame.getContentPane().add(container);
-        res_frame.setSize(400,400);
+        res_frame.setSize(500,500);
+        res_frame.setResizable(true);
         res_frame.setVisible(true);
         res_frame.setLocationRelativeTo(null);
         res_frame.addWindowListener(new WindowAdapter()

@@ -7,12 +7,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.InputStream;
+import java.sql.SQLException;
 
 public class Administration {
 
     JPanel total_pane, login_image, sign_in;
     JTextField email, password;
-    JButton create_student, live_mode, exit;
+    JButton create_student, live_mode, attendance, exit;
     JFrame content_frame;
     public Administration() {
         content_frame = new JFrame("Facial Recognition");
@@ -56,8 +57,23 @@ public class Administration {
         });
         form_pane.add(live_mode);
 
+        attendance = new JButton("Attendance System");
+        attendance.setBounds(105,320,250,50);
+        attendance.addActionListener(event->{
+            try {
+                new AttendanceTable();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        form_pane.add(attendance);
+
+
         exit = new JButton("Exit");
-        exit.setBounds(105,320,250,50);
+        exit.setBounds(105,390,250,50);
+        exit.addActionListener(ev->{
+            System.exit(0);
+        });
         form_pane.add(exit);
 
 
