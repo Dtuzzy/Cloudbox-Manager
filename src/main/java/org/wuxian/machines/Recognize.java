@@ -318,6 +318,7 @@ public class Recognize extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 try {
                     new Portal().insertAttendance(o4,o,o1,o2,classes.getSelectedItem().toString(),o3,s);
+                    container.setVisible(false);
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
                 }
